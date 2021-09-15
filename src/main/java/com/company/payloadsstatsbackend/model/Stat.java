@@ -22,7 +22,7 @@ public class Stat {
 
     @Id
     @GeneratedValue
-    private long id;
+    private Long id;
 
     @Column(nullable = false)
     private Instant time;
@@ -34,16 +34,16 @@ public class Stat {
     private String content;
 
     @Column(nullable = false)
-    private int cdn;
+    private Long cdn;
 
     @Column(nullable = false)
-    private int p2p;
+    private Long p2p;
 
     public Stat() {
 
     }
 
-    public Stat(Instant time, String customer, String content, int cdn, int p2p) {
+    public Stat(Instant time, String customer, String content, Long cdn, Long p2p) {
 
         this.time = time;
         this.customer = customer;

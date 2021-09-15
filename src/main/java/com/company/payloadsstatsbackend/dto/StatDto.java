@@ -13,13 +13,15 @@ import lombok.Setter;
 @Setter
 public class StatDto {
 
+    private Long id;
+
     private Instant time;
 
     private String customer;
 
     private String content;
 
-    private int cdn;
+    private Long cdn;
 
-    private int p2p;
+    private Long p2p;
 }

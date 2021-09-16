@@ -1,13 +1,55 @@
-version: "3"
+version: '2'
 
 services:
-  database:
-    restart: always
-    image: postgres:latest
-    container_name: postgres-latest
+  application:
+    image: 'payloads-stat-backend:latest'
+    build:
+      context: .
+    container_name: application
+    networks:
+      - postgres
+    depends_on:
+      - database
+    profiles:
+      - backend
     environment:
-      - POSTGRES_DB=postgres
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/payloads_stats_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
+    ports:
+      - 8080:8080
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    volumes:
+       - pg-admin:/root/.pgadmin
+    depends_on: 
+      - database
+    ports:
+      - "5050:5050"
+    networks:
+      - postgres
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=root
+      - PGADMIN_LISTEN_PORT=5050
+          
+  database:
+    image: postgres:latest
+    restart: always
+    container_name: database
+    networks:
+      - postgres
+    environment:
+      - POSTGRES_DB=payloads_stats_db
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
     ports:
       - 54032:5432
+
+volumes:
+  db-data:
+  pg-admin:
+networks:
+  postgres:
+    driver: bridge

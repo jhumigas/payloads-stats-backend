@@ -4,8 +4,21 @@ spring-boot-run:
 mvn-clean-install:
 	./mvnw clean install
 
-launch-postgres:
-	docker-compose -f docker-compose.yml up -d 
+mvn-test:
+	./mvnw test
 
-psql-shell:
-	psql -d postgres
+mvn-package:
+	./mvnw clean package -DskipTests
+
+start-db:
+	docker-compose -f docker-compose.yml up -d
+
+stop-db:
+	docker-compose -f docker-compose.yml down
+
+server-up:
+	mvn-package
+	docker-compose -f docker-compose.yml --profile backend up -d
+
+server-down:
+	docker-compose -f docker-compose.yml --profile backend down

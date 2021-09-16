@@ -49,7 +49,7 @@ public class StatController {
             matchingStatDto.setCdn(matchingStatDto.getCdn() + payloadDto.getCdn());
             matchingStatDto.setP2p(matchingStatDto.getP2p() + payloadDto.getP2p());
         } else {
-            matchingStatDto = initStatFromPayload(payloadDto, statTime);
+            matchingStatDto = StatDto.getStatDtoFromPayloadDto(payloadDto, statTime);
         }
         Stat savedStat = statService.saveStat(mapStructMapper.statDtoToStat(matchingStatDto));
         return mapStructMapper.statToStatDto(savedStat);
@@ -62,12 +62,6 @@ public class StatController {
         LocalDateTime timeWindowHighBound = inputDateTime.withMinute(0).withSecond(0)
                 .plusSeconds(timeWindowHighBoundSeconds);
         return timeWindowHighBound.atZone(ZoneId.of(Constants.ZONE_ID)).toInstant();
-    }
-
-    public StatDto initStatFromPayload(PayloadDto payload, Instant time) {
-        StatDto stat = new StatDto(null, time, payload.getCustomer(), payload.getContent(), payload.getCdn(),
-                payload.getP2p());
-        return stat;
     }
 
 }

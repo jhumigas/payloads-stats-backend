@@ -24,4 +24,10 @@ public class StatDto {
     private Long cdn;
 
     private Long p2p;
+
+    public static StatDto getStatDtoFromPayloadDto(PayloadDto payloadDto, Instant time) {
+        StatDto stat = new StatDto(null, time, payloadDto.getCustomer(), payloadDto.getContent(), payloadDto.getCdn(),
+                payloadDto.getP2p());
+        return stat;
+    }
 }

@@ -32,6 +32,24 @@ make start-db
 # Start spring-boot
 make spring-boot-run
 ```
+
+You can test if it is working with curl (or even postman):
+
+```sh
+curl --location --request POST 'http://localhost:8080/stats' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+    "token": "c98arf53-ae39-4c9d-af44-c6957ee2f748",
+    "customer": "Customer1",
+    "content": "channel1",
+    "timespan": 30000,
+    "p2p": 0,
+    "cdn": 1,
+    "sessionDuration": 2
+    }'
+```
+
+Navigate to http://localhost:5050/ to see your postgres database.
 #### Prod Mode
 To run the whole application locally, you can just run:
 
@@ -98,6 +116,13 @@ Given a time window, a payload corresponds to a new video session if its `sessio
 3. Work on data layer: models, dto, repository
 4. Work on services to interact with repository
 5. Work on controller
+
+### TODO
+
+* Refactor code
+* Add tests
+* Move some logic from controllers to services
+* Add CI on Github
 
 # References
 

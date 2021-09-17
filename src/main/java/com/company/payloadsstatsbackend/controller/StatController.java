@@ -1,17 +1,21 @@
 package com.company.payloadsstatsbackend.controller;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
 import com.company.payloadsstatsbackend.common.Constants;
+import com.company.payloadsstatsbackend.common.TimeProvider;
 import com.company.payloadsstatsbackend.dto.PayloadDto;
 import com.company.payloadsstatsbackend.dto.StatDto;
 import com.company.payloadsstatsbackend.mappers.MapStructMapper;
 import com.company.payloadsstatsbackend.model.Stat;
 import com.company.payloadsstatsbackend.service.StatService;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,7 +45,7 @@ public class StatController {
 
     @PostMapping("/stats")
     public StatDto addPayloadToStat(@RequestBody PayloadDto payloadDto) {
-        LocalDateTime receivedAt = LocalDateTime.now().withNano(0);
+        LocalDateTime receivedAt = TimeProvider.now().withNano(0);
         Instant statTime = getRelatedTimeWindowHighBound(receivedAt);
         StatDto matchingStatDto = getStatsByCustomerAndContent(payloadDto.getCustomer(), payloadDto.getContent())
                 .stream().filter(stat -> stat.getTime().equals(statTime)).findAny().orElse(null);

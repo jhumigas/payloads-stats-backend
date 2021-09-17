@@ -1,5 +1,7 @@
 package com.company.payloadsstatsbackend.dto;
 
+import org.hibernate.annotations.DynamicUpdate;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

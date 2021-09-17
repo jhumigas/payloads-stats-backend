@@ -55,6 +55,11 @@ public class StatController {
         } else {
             matchingStatDto = StatDto.getStatDtoFromPayloadDto(payloadDto, statTime);
         }
+
+        if ((payloadDto.getSessionDuration() < (long) Constants.WINDOW_LENGTH_IN_SECONDS)
+                && ((payloadDto.getCdn() + payloadDto.getP2p()) == 0L)) {
+            matchingStatDto.setSessions(matchingStatDto.getSessions() + 1L);
+        }
         Stat savedStat = statService.saveStat(mapStructMapper.statDtoToStat(matchingStatDto));
         return mapStructMapper.statToStatDto(savedStat);
     }

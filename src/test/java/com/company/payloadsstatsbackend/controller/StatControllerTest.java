@@ -144,4 +144,37 @@ public class StatControllerTest {
                                 .andExpect(jsonPath("$.cdn", is(mockPayloadDto2.getCdn().intValue())))
                                 .andExpect(jsonPath("$.p2p", is(mockPayloadDto2.getP2p().intValue())));
         }
+
+        @Test
+        public void whenPostPayloadsOfTwoSessionsSameCustomersToStatsInSameTimeWindow() throws Exception {
+
+                // given
+                PayloadDto mockPayloadDto1 = new PayloadDto("to-ke-n1", "customer7", "content1", 3L, 0L, 0L, 1L);
+                PayloadDto mockPayloadDto2 = new PayloadDto("to-ke-n2", "customer7", "content1", 3L, 0L, 0L, 1L);
+                int durationBetweenPayloads = 4;
+
+                // when
+                mvc.perform(post("/stats").contentType(MediaType.APPLICATION_JSON)
+                                .content(JsonUtil.toJson(mockPayloadDto1)));
+
+                TimeProvider.useFixedClockAt(NOW.plusMinutes(durationBetweenPayloads));
+
+                // then
+                mvc.perform(post("/stats").contentType(MediaType.APPLICATION_JSON)
+                                .content(JsonUtil.toJson(mockPayloadDto2))).andExpect(status().isOk())
+                                .andExpect(jsonPath("$.sessions", is(2)));
+        }
+
+        @Test
+        public void whenPostPayloadsOfOldSessionToStatsInSameTimeWindow() throws Exception {
+
+                // given
+                PayloadDto mockPayloadDto1 = new PayloadDto("to-ke-n1", "customer8", "content1", 3L, 0L, 0L, 400L);
+                int durationBetweenPayloads = 4;
+
+                // then
+                mvc.perform(post("/stats").contentType(MediaType.APPLICATION_JSON)
+                                .content(JsonUtil.toJson(mockPayloadDto1))).andExpect(status().isOk())
+                                .andExpect(jsonPath("$.sessions", is(0)));
+        }
 }

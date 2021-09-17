@@ -16,8 +16,7 @@ start-db:
 stop-db:
 	docker-compose -f docker-compose.yml down
 
-server-up:
-	mvn-package
+server-up: mvn-package
 	docker-compose -f docker-compose.yml --profile backend up -d
 
 server-down:

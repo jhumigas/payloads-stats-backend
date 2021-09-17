@@ -39,6 +39,9 @@ public class Stat {
     @Column(nullable = false)
     private Long p2p;
 
+    @Column(nullable = false)
+    private Long sessions;
+
     public Stat() {
 
     }
@@ -50,5 +53,26 @@ public class Stat {
         this.content = content;
         this.cdn = cdn;
         this.p2p = p2p;
+        this.sessions = 0L;
+    }
+
+    public Stat(Instant time, String customer, String content, Long cdn, Long p2p, Long sessions) {
+
+        this.time = time;
+        this.customer = customer;
+        this.content = content;
+        this.cdn = cdn;
+        this.p2p = p2p;
+        this.sessions = sessions;
+    }
+
+    public Stat(Long id, Instant time, String customer, String content, Long cdn, Long p2p, Long sessions) {
+        this.id = id;
+        this.time = time;
+        this.customer = customer;
+        this.content = content;
+        this.cdn = cdn;
+        this.p2p = p2p;
+        this.sessions = sessions;
     }
 }

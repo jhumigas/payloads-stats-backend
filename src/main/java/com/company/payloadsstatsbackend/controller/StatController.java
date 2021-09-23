@@ -24,6 +24,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 
+// TODO: Move any business logic to service
+// TODO: Check clean architecture vs n-tier
+// TODO: Add response entity
+// TODO: Add exception handling
+// TODO: Add unit tests only for controller
 @RequiredArgsConstructor
 @RestController()
 public class StatController {

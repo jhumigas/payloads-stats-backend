@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
-// TODO: Add unit tests only for service
 @Service
 @RequiredArgsConstructor
 public class StatServiceImpl implements StatService {
@@ -50,7 +49,7 @@ public class StatServiceImpl implements StatService {
     @Override
     public StatDto addPayloadToStat(PayloadDto payloadDto) {
         LocalDateTime receivedAt = TimeProvider.now().withNano(0);
-        Instant statTime = getRelatedTimeWindowHighBound(receivedAt);
+        Instant statTime = getRelatedTimeWindowHighBound(receivedAt).atZone(ZoneId.of(Constants.ZONE_ID)).toInstant();
         StatDto matchingStatDto = getStatsByCustomerAndContent(payloadDto.getCustomer(), payloadDto.getContent())
                 .stream().filter(stat -> stat.getTime().equals(statTime)).findAny().orElse(null);
         if (matchingStatDto != null) {
@@ -68,13 +67,12 @@ public class StatServiceImpl implements StatService {
         return mapStructMapper.statToStatDto(savedStat);
     }
 
-    public Instant getRelatedTimeWindowHighBound(LocalDateTime inputDateTime) {
+    public static LocalDateTime getRelatedTimeWindowHighBound(LocalDateTime inputDateTime) {
         int inputDateTimeSeconds = inputDateTime.getMinute() * 60 + inputDateTime.getSecond();
         int timeWindowIndex = inputDateTimeSeconds / Constants.WINDOW_LENGTH_IN_SECONDS;
         int timeWindowHighBoundSeconds = (1 + timeWindowIndex) * Constants.WINDOW_LENGTH_IN_SECONDS;
         LocalDateTime timeWindowHighBound = inputDateTime.withMinute(0).withSecond(0)
                 .plusSeconds(timeWindowHighBoundSeconds);
-        return timeWindowHighBound.atZone(ZoneId.of(Constants.ZONE_ID)).toInstant();
+        return timeWindowHighBound;
     }
-
 }

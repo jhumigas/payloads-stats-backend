@@ -1,11 +1,14 @@
-spring-boot-run:
-	./mvnw spring-boot:run
-
 mvn-clean-install:
 	./mvnw clean install
 
 mvn-test:
 	./mvnw test
+
+mvn-clean:
+	./mvnw clean
+
+spring-boot-run: mvn-clean
+	./mvnw spring-boot:run
 
 mvn-package:
 	./mvnw clean package -DskipTests

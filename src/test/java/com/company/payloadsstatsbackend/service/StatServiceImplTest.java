@@ -1,13 +1,22 @@
 package com.company.payloadsstatsbackend.service;
 
+import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.company.payloadsstatsbackend.common.Constants;
+import com.company.payloadsstatsbackend.common.TimeProvider;
+import com.company.payloadsstatsbackend.dto.PayloadDto;
+import com.company.payloadsstatsbackend.dto.StatDto;
+import com.company.payloadsstatsbackend.mappers.MapStructMapper;
 import com.company.payloadsstatsbackend.model.Stat;
 import com.company.payloadsstatsbackend.repository.StatRepository;
 
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -25,6 +34,17 @@ public class StatServiceImplTest {
 
     @Autowired
     private StatService statService;
+
+    private MapStructMapper mapStructMapper;
+
+    static Clock clock;
+
+    private static LocalDateTime NOW = LocalDateTime.of(2021, 1, 1, 10, 0);
+
+    @BeforeAll
+    static void setupClock() {
+        TimeProvider.useFixedClockAt(NOW);
+    }
 
     @Test
     public void whenSaveStatThenReturnSavedStat() throws Exception {
@@ -44,7 +64,8 @@ public class StatServiceImplTest {
 
     @Test
     public void whenGetStatsByCustomerAndContenthenReturnTeam() throws Exception {
-        Stat mockStat = new Stat(Instant.now(), "customer1", "content1", 1L, 1L);
+        Stat mockStat = new Stat(TimeProvider.now().atZone(ZoneId.of(Constants.ZONE_ID)).toInstant(), "customer1",
+                "content1", 1L, 1L);
         List<Stat> mockStatList = new ArrayList<>();
         mockStatList.add(mockStat);
 
@@ -52,14 +73,14 @@ public class StatServiceImplTest {
         Mockito.when(privateRepository.findByCustomerAndContent("customer1", "content1")).thenReturn(mockStatList);
 
         // when
-        List<Stat> statList = statService.getStatsByCustomerAndContent("customer1", "content1");
+        List<StatDto> statList = statService.getStatsByCustomerAndContent("customer1", "content1");
 
         // then
         Assert.assertEquals(1, statList.size());
     }
 
     @Test
-    public void whenGetStatsThenReturnStatist() throws Exception {
+    public void whenGetStatsThenReturnStatList() throws Exception {
         Stat mockStat = new Stat(Instant.now(), "customer1", "content1", 1L, 1L);
         List<Stat> mockStatList = new ArrayList<>();
         mockStatList.add(mockStat);
@@ -68,7 +89,7 @@ public class StatServiceImplTest {
         Mockito.when(privateRepository.findAll()).thenReturn(mockStatList);
 
         // when
-        List<Stat> statList = statService.getStats();
+        List<StatDto> statList = statService.getStats();
 
         // then
         Assert.assertEquals(1, statList.size());

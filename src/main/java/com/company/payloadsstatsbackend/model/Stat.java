@@ -13,6 +13,8 @@ import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 
+// TODO: Use lombok constructor
+// TODO: Check @data constructor
 @Entity
 @Table(name = "stats")
 @Getter

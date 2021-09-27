@@ -84,7 +84,7 @@ The content of each payload is described below :
 - **content** (string) : The name of the content being played
 - **timespan** (int64) : the time (in milliseconds) elapsed since the last time the device sent a payload in that video session (so in our example, timespan is always equal to 30000)
 - **p2p** (int64) : The volume (in bytes) downloaded from other devices in Peer-to-Peer since the last time the device sent a payload in that video session.
-- **cdn** (int64) : The volume (in bytes) downloaded from the broadcaster's servers (cdn is short for Content Delivery Network).
+- **cdn** (int64) : The volume (in bytes) downloaded from the broadcaster's servers (cdn is short for Content Delivery Network) since the last time the device sent a payload in that video session.
 - **sessionDuration** (int64) : Total time elapsed (in milliseconds) **since the beginning of the video session**.
 
 ### Features
@@ -117,12 +117,6 @@ Given a time window, a payload corresponds to a new video session if its `sessio
 4. Work on services to interact with repository
 5. Work on controller
 
-### TODO
-
-* Refactor code
-* Add tests
-* Move some logic from controllers to services
-* Add CI on Github
 
 # References
 

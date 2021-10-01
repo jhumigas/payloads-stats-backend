@@ -66,7 +66,7 @@ make server-down
 
 Each device playing a video sends statistics to our data pipeline. That data is sent by each device through HTTP as **JSON payloads**. Each device sends one payload **every 30 seconds**.
 
-The content of each payload is described below : 
+The content of each payload is described below: 
 ```
 {
     "token" : "c98arf53-ae39-4c9d-af44-c6957ee2f748",
@@ -87,14 +87,14 @@ The content of each payload is described below :
 - **cdn** (int64) : The volume (in bytes) downloaded from the broadcaster's servers (cdn is short for Content Delivery Network) since the last time the device sent a payload in that video session.
 - **sessionDuration** (int64) : Total time elapsed (in milliseconds) **since the beginning of the video session**.
 
-### Features
+### Overview
 
 #### Payload Stats 
 
-Write an HTTP server that exposes a `/stats` route. The server must be able to : 
+HTTP server that exposes a `/stats` route. The server is be able to: 
 
 - Receive the JSON payloads sent by devices
-- Write the data into a postgreSQL database (in a `stats` table). Each row in the table should be the aggregation of payloads received during a **5 minutes time window**. The table should have the following columns :
+- Write the data into a postgreSQL database (in a `stats` table). Each row in the table should be the aggregation of payloads received during a **5 minutes time window**. The table should have the following columns:
 
     * **Time** (datetime) : the timestamp of **the end** of the 5-minute window. We expect this time to be based on the time of reception of the payload by the server.
     * **customer** (string) : the customer aggregated in that row
@@ -106,8 +106,17 @@ Write an HTTP server that exposes a `/stats` route. The server must be able to :
 
 If we had to count the number of video sessions started in a given time window, we could use the token sent in each payload, with the session duration.
 Given a time window, a payload corresponds to a new video session if its `sessionDuration` is less than the time window length and if one of the two following is fulfilled:
+
     * its `token` was never seen before or,
     * `cdn` + `p2p` is 0
+
+### Payloads In Messaging Queue
+
+If we consider scalability due to numerous incoming payloads, and if we have multiple Spring Boot Apps processing payloads, but writing to the same database, how can we make sure that:
+* each backend is synchronized w.r.t to the payloads processed ? 
+* two backends processing two payloads at the same time compute in a sequential fashions the payload stats
+
+We could either play on the types of transactions made to the database, make them isolated. Or/And we could add intermediate queues so that we process the payloads in a distributed fashion: make services on the side that receive the payloads, and also services that will process the payloads.
 
 ### How It Was Done
 
@@ -121,6 +130,9 @@ Given a time window, a payload corresponds to a new video session if its `sessio
 # References
 
 * [Spring Boot](https://spring.io/projects/spring-boot)
-* [Docker example](https://towardsdatascience.com/how-to-run-postgresql-and-pgadmin-using-docker-3a6a8ae918b5)
-* [Sprint Boot testing](https://www.baeldung.com/spring-boot-testing)
+* [Docker Example with Postgres](https://towardsdatascience.com/how-to-run-postgresql-and-pgadmin-using-docker-3a6a8ae918b5)
+* [Sprint Boot Testing](https://www.baeldung.com/spring-boot-testing)
+* [Spribg Boot Kafka Testing](https://www.baeldung.com/spring-boot-kafka-testing)
+* [Spring Boot Kafka Docker](https://habr.com/en/post/529222/)
+* [Shared State Microservices for Distributed Systems Using Kafka](https://www.confluent.io/blog/building-shared-state-microservices-for-distributed-systems-using-kafka-streams/)
 

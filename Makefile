@@ -1,5 +1,5 @@
 mvn-clean-install:
-	./mvnw clean install
+	./mvnw clean install -DskipTests -Dhttps.protocols=TLSv1.2
 
 mvn-test:
 	./mvnw test
@@ -8,7 +8,7 @@ mvn-clean:
 	./mvnw clean
 
 spring-boot-run: mvn-clean
-	./mvnw spring-boot:run
+	./mvnw spring-boot:run -DskipTests
 
 mvn-package:
 	./mvnw clean package -DskipTests

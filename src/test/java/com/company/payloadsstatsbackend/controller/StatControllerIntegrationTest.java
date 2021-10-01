@@ -19,29 +19,38 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.kafka.test.context.EmbeddedKafka;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@DirtiesContext
 @AutoConfigureMockMvc
 @TestPropertySource(locations = "classpath:application.yml")
-public class StatControllerTest {
+@EmbeddedKafka(partitions = 1, brokerProperties = { "listeners=PLAINTEXT://localhost:9092", "port=9092" })
+public class StatControllerIntegrationTest {
 
         @Autowired
         private MockMvc mvc;
@@ -51,6 +60,7 @@ public class StatControllerTest {
         static Clock clock;
 
         private static LocalDateTime NOW = LocalDateTime.of(2021, 1, 1, 10, 0);
+        private final CountDownLatch waiter = new CountDownLatch(1);
 
         @BeforeAll
         static void setupClock() {
@@ -170,11 +180,25 @@ public class StatControllerTest {
 
                 // given
                 PayloadDto mockPayloadDto1 = new PayloadDto("to-ke-n1", "customer8", "content1", 3L, 0L, 0L, 400L);
-                int durationBetweenPayloads = 4;
 
                 // then
                 mvc.perform(post("/stats").contentType(MediaType.APPLICATION_JSON)
                                 .content(JsonUtil.toJson(mockPayloadDto1))).andExpect(status().isOk())
                                 .andExpect(jsonPath("$.sessions", is(0)));
+        }
+
+        @Test
+        public void givenEmbeddedKafkaBroker_whenPostPayload() throws Exception {
+                // given
+                PayloadDto mockPayloadDto = new PayloadDto("to-ke-n3", "customer9", "content2", 3L, 0L, 0L, 400L);
+
+                // then
+                mvc.perform(post("/payloads").contentType(MediaType.APPLICATION_JSON)
+                                .content(JsonUtil.toJson(mockPayloadDto))).andExpect(status().isOk());
+
+                // waiter.await(1000 * 1000, TimeUnit.NANOSECONDS);
+                // TODO: Check waiter
+                // mvc.perform(get("/stats/customer9/content2")).andExpect(status().isOk())
+                // .andExpect(jsonPath("$", hasSize(1)));
         }
 }

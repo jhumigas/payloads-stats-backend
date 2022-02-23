@@ -24,7 +24,7 @@ make mvn-package
 
 #### Dev Mode
 
-During development, you will need the database and a tool to administrate your database, you need to run the following
+During development, you will need the database and a tool to manage your database, you need to run the following
 
 ```sh
 # Start db in docker and set up pgadmin 
@@ -91,7 +91,7 @@ The content of each payload is described below:
 
 #### Payload Stats 
 
-HTTP server that exposes a `/stats` route. The server is be able to: 
+HTTP server that exposes a `/stats` route. The server is able to: 
 
 - Receive the JSON payloads sent by devices
 - Write the data into a postgreSQL database (in a `stats` table). Each row in the table should be the aggregation of payloads received during a **5 minutes time window**. The table should have the following columns:
@@ -116,7 +116,16 @@ If we consider scalability due to numerous incoming payloads, and if we have mul
 * each backend is synchronized w.r.t to the payloads processed ? 
 * two backends processing two payloads at the same time compute in a sequential fashions the payload stats
 
-We could either play on the types of transactions made to the database, make them isolated. Or/And we could add intermediate queues so that we process the payloads in a distributed fashion: make services on the side that receive the payloads, and also services that will process the payloads.
+For this we added an intermediate queue so that we process the payloads in a distributed fashion: make services on the side that receive the payloads, and also services that will process the payloads. This was added through kafka messaging service:
+
+HTTP server that exposes a `/payloads` route. The server is able to: 
+
+- Receive the JSON payloads sent by devices and append them to a Kafka Queue (through a `PayloadProducerService`)
+- Process the message of the queue thanks to a `PayloadConsumerService` that will then call internally the same methods as the one behind `/stats` route
+
+Here is how the docker services interact (see extensive explanation from [here](https://habr.com/en/post/529222/)).
+
+![Kafka Services Setup](./docs/setup.png)
 
 ### How It Was Done
 
@@ -125,7 +134,10 @@ We could either play on the types of transactions made to the database, make the
 3. Work on data layer: models, dto, repository
 4. Work on services to interact with repository
 5. Work on controller
+6. Add Messaging Service
 
+
+nc -z localhost 22181
 
 # References
 
